@@ -9,7 +9,7 @@ def pick_a_word():
 print(pick_a_word())
 
 def play():
-	word = pick_a_word():
+	word = pick_a_word()
 	while True:
 		guess = get_guess(word)
 		if process_guess(guess, word):
