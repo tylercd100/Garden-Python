@@ -1,3 +1,5 @@
+import random
+
 words = ['chicken', 'dog', 'cat', 'mouse']
 
 def pick_a_word():
