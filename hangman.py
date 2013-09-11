@@ -6,8 +6,6 @@ def pick_a_word():
 	word_position = random.randint(0, len(words) - 1)
 	return words[word_position]
 
-print(pick_a_word())
-
 def play():
 	word = pick_a_word()
 	while True:
@@ -28,3 +26,4 @@ def process_guess(guess, word):
 	lives_remaining = lives_remaining - 1
 	return False
 
+play()
