@@ -26,7 +26,7 @@ while 1:
 		ser.write('5')
 
 		GPIO.output(cursor, False)
-		cursor++
+		cursor = cursor + 1
 		if(cursor >= len(outputPins)):
 			cursor = 0
 		GPIO.output(cursor, True)
