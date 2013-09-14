@@ -2,23 +2,23 @@ from time import sleep
 import RPi.GPIO as GPIO
 GPIO.cleanup()
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(0, GPIO.OUT)
-GPIO.setup(3, GPIO.OUT)
-GPIO.setup(4, GPIO.OUT)
+GPIO.setup(11, GPIO.OUT)
+GPIO.setup(15, GPIO.OUT)
+GPIO.setup(16, GPIO.OUT)
 while 1:
-     GPIO.output(0, False)
+     GPIO.output(11, False)
      sleep(1)
-     GPIO.output(0, True)
-     sleep(1)
-
-     GPIO.output(3, False)
-     sleep(1)
-     GPIO.output(3, True)
+     GPIO.output(11, True)
      sleep(1)
 
-     GPIO.output(4, False)
+     GPIO.output(15, False)
      sleep(1)
-     GPIO.output(4, True)
+     GPIO.output(15, True)
+     sleep(1)
+
+     GPIO.output(16, False)
+     sleep(1)
+     GPIO.output(16, True)
      sleep(1)
 
 	 
