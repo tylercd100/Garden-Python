@@ -4,6 +4,7 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(13, GPIO.OUT)
 GPIO.setup(11, GPIO.IN)
 GPIO.setup(15, GPIO.OUT)
+GPIO.setup(16, GPIO.OUT)
 GPIO.setup(12, GPIO.IN)
 while 1:
 	if GPIO.input(11) and not GPIO.input(12):
