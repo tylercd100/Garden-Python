@@ -23,12 +23,10 @@ while 1:
 	msg = ser.readline()
 	if(len(msg) > 0):
 		print msg
-		
-
 		GPIO.output(outputPins[cursor], True)
 		cursor = cursor + 1
 		if(cursor >= len(outputPins)):
 			cursor = 0
 		GPIO.output(outputPins[cursor], False)
-		ser.write(cursor)
+		ser.write(str(cursor)
 	
