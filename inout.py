@@ -15,3 +15,8 @@ while 1:
 		GPIO.output(15, False)
 	else:
 		GPIO.output(15, True)
+
+	if GPIO.input(12) and not GPIO.input(11):
+		GPIO.output(16, False)
+	else:
+		GPIO.output(16, True)
