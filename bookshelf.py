@@ -25,12 +25,12 @@ sleeptime = 1
 # print now.strftime("%Y-%m-%d %H:%M")
 
 ser = serial.Serial('/dev/ttyACM0', 9600)
-db = MySQLdb.connect(host="localhost", # your host, usually localhost
-                     user="root", # your username
-                      passwd="joshua22", # your password
-                      db="garden") # name of the data base
+# db = MySQLdb.connect(host="localhost", # your host, usually localhost
+#                      user="root", # your username
+#                       passwd="joshua22", # your password
+#                       db="garden") # name of the data base
 
-cur = db.cursor()
+# cur = db.cursor()
 count = 0;
 
 def checkTime():
@@ -52,25 +52,25 @@ while True:
 
 
 
-def readBuffer():
-	while ser.inWaiting():
-		msgId = ser.readline()
-		if(msgId[:1] == 'i'):
-			sensor = ser.readline()
-			val = ser.readline()
-			print msgId, sensor, val
+# def readBuffer():
+# 	while ser.inWaiting():
+# 		msgId = ser.readline()
+# 		if(msgId[:1] == 'i'):
+# 			sensor = ser.readline()
+# 			val = ser.readline()
+# 			print msgId, sensor, val
 
-			now = datetime.datetime.now()
-			t = now.strftime("%Y-%m-%dT%H:%M:%S")
+# 			now = datetime.datetime.now()
+# 			t = now.strftime("%Y-%m-%dT%H:%M:%S")
 
-			# cur.execute("INSERT INTO sensors (time, sensor, value) VALUES (%s,%s,%s)",(t, sensor, val))
-			# db.commit() 
+# 			# cur.execute("INSERT INTO sensors (time, sensor, value) VALUES (%s,%s,%s)",(t, sensor, val))
+# 			# db.commit() 
 		
-		else:
-			print 'idk '+msgId
-			# print 'checking the time'
-			# now = datetime.datetime.now()
-			# if(now.minute % 2 == 0):
-			# 	ser.write('1')
-			# else:
-			# 	ser.write('0')
+# 		else:
+# 			print 'idk '+msgId
+# 			# print 'checking the time'
+# 			# now = datetime.datetime.now()
+# 			# if(now.minute % 2 == 0):
+# 			# 	ser.write('1')
+# 			# else:
+# 			# 	ser.write('0')
