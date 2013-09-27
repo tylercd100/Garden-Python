@@ -46,6 +46,8 @@ while True:
 	# print int(timeIsOk)
 	count+=1
 	ser.write(str(int(timeIsOk)))
+	while ser.inWaiting():
+		print ser.readline()
 	time.sleep(sleeptime)
 
 
