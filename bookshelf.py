@@ -51,6 +51,7 @@ def checkTime():
 	ans = False
 	now = datetime.datetime.now()
 	# print now.hour, now.minute, now.second
+	print now.strftime("%Y-%m-%d %H:%M")
 	if (now.hour >= hours[0] and now.hour < hours[1]):
 		ans = True 
 	return ans
