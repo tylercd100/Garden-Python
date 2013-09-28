@@ -26,12 +26,11 @@ sleeptime = 1
 _id = 0;
 
 print 'Starting Bookshelf'
-
+print 'Connecting...'
 while True:
 	try:
 		ser = serial.Serial('/dev/ttyACM'+str(_id), 9600)
 	except serial.serialutil.SerialException:
-		print 'couldn\'t connect to /dev/ttyACM'+str(_id)
 		_id = _id + 1;
 		if(_id >= 10):
 			_id = 0
