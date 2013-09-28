@@ -23,8 +23,23 @@ sleeptime = 1
 # print
 # print "Current date and time using strftime:"
 # print now.strftime("%Y-%m-%d %H:%M")
+_id = 0;
 
-ser = serial.Serial('/dev/ttyACM0', 9600)
+print 'Starting Bookshelf'
+
+while True:
+	try:
+		ser = serial.Serial('/dev/ttyACM'+str(_id), 9600)
+	except serial.serialutil.SerialException:
+		print 'couldn\'t connect to /dev/ttyACM'+str(_id)
+		_id = _id + 1;
+		if(_id >= 10):
+			_id = 0
+			time.sleep(2)
+	else:
+		print 'connected to /dev/ttyACM'+str(_id)
+		break;
+
 # db = MySQLdb.connect(host="localhost", # your host, usually localhost
 #                      user="root", # your username
 #                       passwd="joshua22", # your password
@@ -41,16 +56,32 @@ def checkTime():
 		ans = True 
 	return ans
 
+
 while True:
-	timeIsOk = checkTime()
-	# print int(timeIsOk)
-	count+=1
-	ser.write(str(int(timeIsOk)))
-	while ser.inWaiting():
-		print ser.readline()
-	time.sleep(sleeptime)
-
-
+	try:
+		timeIsOk = checkTime()
+		# print int(timeIsOk)
+		count+=1
+		ser.write(str(int(timeIsOk)))
+		while ser.inWaiting():
+			print ser.readline()
+		time.sleep(sleeptime)
+	except serial.serialutil.SerialException:
+		ser.close()
+		print 'Lost connection to /dev/ttyACM'+str(_id)
+		print 'Retrying...'
+		while True:
+			try:
+				ser = serial.Serial('/dev/ttyACM'+str(_id), 9600)
+			except serial.serialutil.SerialException:
+				_id = _id + 1;
+				if(_id >= 10):
+					_id = 0
+					time.sleep(2)
+			else:
+				print 'connected to /dev/ttyACM'+str(_id)
+				break;
+	
 
 
 
