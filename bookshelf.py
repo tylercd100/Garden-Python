@@ -4,7 +4,7 @@ import serial
 import MySQLdb
 
 hours = 7, 21
-sleeptime = 1
+sleeptime = 5
 
 # print
 # print "Current date and time using str method of datetime object:"
@@ -59,12 +59,15 @@ def checkTime():
 
 while True:
 	try:
+		while ser.inWaiting():
+			ser.flushInput()
+			#print ser.readline()
+
 		timeIsOk = checkTime()
 		# print int(timeIsOk)
 		count+=1
 		ser.write(str(int(timeIsOk)))
-		while ser.inWaiting():
-			print ser.readline()
+		
 		time.sleep(sleeptime)
 	except serial.serialutil.SerialException:
 		ser.close()
