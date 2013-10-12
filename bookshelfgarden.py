@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 def daemonize():
 	import os, sys
 
