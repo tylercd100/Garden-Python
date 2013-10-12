@@ -1,28 +1,26 @@
+def daemonize():
+	import os, sys
+
+	# pid = os.fork()
+	# if pid != 0:
+	# 	os._exit(0)
+	
+	os.setsid()
+
+	sys.stdin = open("/dev/null", "r")
+	sys.stdout = open("/var/log/bookshelfgarden/log.log", "w")
+	sys.stderr = open("/var/log/bookshelfgarden/error.log", "w") # Dont show errors
+
 import datetime
 import time
 import serial
 import MySQLdb
 
+daemonize()
+
 hours = 7, 21
 sleeptime = 5
 
-# print
-# print "Current date and time using str method of datetime object:"
-# print str(now)
-
-# print
-# print "Current date and time using instance attributes:"
-# print "Current year: %d" % now.year
-# print "Current month: %d" % now.month
-# print "Current day: %d" % now.day
-# print "Current hour: %d" % now.hour
-# print "Current minute: %d" % now.minute
-# print "Current second: %d" % now.second
-# print "Current microsecond: %d" % now.microsecond
-
-# print
-# print "Current date and time using strftime:"
-# print now.strftime("%Y-%m-%d %H:%M")
 _id = 0;
 
 print 'Starting Bookshelf'
