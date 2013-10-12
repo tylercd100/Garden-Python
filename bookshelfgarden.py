@@ -15,6 +15,17 @@ def printToFile(f,str):
 	l.write(str + '\n')
 	l.close()
 
+def checkTime():
+	ans = False
+	now = datetime.datetime.now()
+	printToFile(logFile,str(now.hour) +', '+ str(hours[0]) +', '+ str(hours[1]))
+	if (now.hour >= hours[0] and now.hour < hours[1]):
+		ans = True 
+	else:
+		ans = False
+	printToFile(logFile, str(ans))
+	return ans
+
 import datetime
 import time
 import serial
@@ -22,7 +33,7 @@ import MySQLdb
 
 daemonize()
 
-hours = 22, 23
+hours = 20, 22
 sleeptime = 5
 timeIsOk = False
 prevtimeIsOk = False
@@ -31,7 +42,7 @@ _id = 0;
 
 now = datetime.datetime.now()
 
-logFile = '/var/log/bookshelfgarden/log.log'#+now.strftime("%Y-%m-%dT%H.%M")+'.log'
+logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
 
 l = open(logFile,'w')
 l.write('')
@@ -39,6 +50,7 @@ l.close()
 
 printToFile(logFile,'Starting Bookshelf')
 printToFile(logFile,now.strftime("%Y-%m-%d %H:%M"))
+checkTime()
 printToFile(logFile,'Connecting...')
 while True:
 	try:
@@ -58,18 +70,11 @@ while True:
 #                       db="garden") # name of the data base
 
 # cur = db.cursor()
-count = 0;
 
-def checkTime():
-	ans = False
-	now = datetime.datetime.now()
-	if (now.hour >= hours[0] and now.hour < hours[1]):
-		ans = True 
-	else:
-		ans = False
 
-	return ans
-
+#send to arduino
+printToFile(logFile,'Sending to Arduino: '+str(int(timeIsOk)))
+ser.write(str(int(timeIsOk)))
 
 while True:
 	try:
@@ -81,10 +86,9 @@ while True:
 			now = datetime.datetime.now()
 			printToFile(logFile,now.strftime("%Y-%m-%d %H:%M")+': timeIsOk changed to '+str(timeIsOk))
 			prevtimeIsOk = timeIsOk
+			printToFile(logFile,'Sending to Arduino: '+str(int(timeIsOk)))
+			ser.write(str(int(timeIsOk)))
 
-		count+=1
-		ser.write(str(int(timeIsOk)))
-		
 		time.sleep(sleeptime)
 	except serial.serialutil.SerialException:
 		ser.close()
