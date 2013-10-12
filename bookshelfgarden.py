@@ -11,6 +11,7 @@ def daemonize():
 	sys.stderr = open("/dev/null", "w")
 
 def printToFile(f,str):
+	print str
 	l = open(f,'a')
 	l.write(str + '\n')
 	l.close()
@@ -18,8 +19,9 @@ def printToFile(f,str):
 def checkTime():
 	ans = False
 	now = datetime.datetime.now()
-	printToFile(logFile,str(now.hour) +', '+ str(hours[0]) +', '+ str(hours[1]))
+	# printToFile(logFile,str(now.hour) +', '+ str(hours[0]) +', '+ str(hours[1]))
 	if (now.hour >= hours[0] and now.hour < hours[1]):
+	# if (now.minute % 2):
 		ans = True 
 	else:
 		ans = False
@@ -31,12 +33,12 @@ import time
 import serial
 import MySQLdb
 
-daemonize()
+# daemonize()
 
-hours = 20, 22
+hours = 7, 21
 sleeptime = 5
-timeIsOk = False
-prevtimeIsOk = False
+timeIsOk = True
+prevtimeIsOk = True
 
 _id = 0;
 
@@ -73,13 +75,17 @@ while True:
 
 
 #send to arduino
-printToFile(logFile,'Sending to Arduino: '+str(int(timeIsOk)))
-ser.write(str(int(timeIsOk)))
+# printToFile(logFile,'Sending to Arduino: '+str(int(timeIsOk)))
+# ser.write(str(int(timeIsOk)))
+
+printToFile(logFile,'Sleeping for 5 seconds...')
+time.sleep(5)
 
 while True:
 	try:
 		while ser.inWaiting():
-			ser.flushInput()
+			# ser.flushInput()
+			printToFile(logFile,'Message from Arduino:"'+ser.readline()+'"')
 
 		timeIsOk = checkTime()
 		if (timeIsOk != prevtimeIsOk): 
