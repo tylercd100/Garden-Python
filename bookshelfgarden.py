@@ -1,11 +1,11 @@
 def daemonize():
 	import os, sys
 
-	# pid = os.fork()
-	# if pid != 0:
-	# 	os._exit(0)
+	pid = os.fork()
+	if pid != 0:
+		os._exit(0)
 	
-	os.setsid()
+	#os.setsid()
 
 	sys.stdin = open("/dev/null", "r")
 	sys.stdout = open("/var/log/bookshelfgarden/log.log", "w")
