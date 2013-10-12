@@ -3,15 +3,34 @@
 def daemonize():
 	import os, sys
 
-	pid = os.fork()
-	if pid != 0:
-		os._exit(0)
+	if os.fork() > 0:
+	    os._exit(0)
+	# os.setsid()
+	sys.stdin.flush()
+	sys.stdout.flush()
+	sys.stderr.flush()
+	null = os.open('/var/log/bookshelfgarden/log.log', os.O_RDWR)
+	os.dup2(null, sys.stdin.fileno())
+	os.dup2(null, sys.stdout.fileno())
+	os.dup2(null, sys.stderr.fileno())
+	os.close(null)
 	
-	#os.setsid()
+	# #os.setsid()
 
-	sys.stdin = open("/dev/null", "r")
-	sys.stdout = open("/var/log/bookshelfgarden/log.log", "w")
-	sys.stderr = open("/var/log/bookshelfgarden/error.log", "w") # Dont show errors
+	# sys.stdin = open("/dev/null", "r")
+	# sys.stdout = open("/var/log/bookshelfgarden/log.log", "w")
+	# sys.stderr = open("/var/log/bookshelfgarden/error.log", "w") 
+
+	# sin = sys.stdin.fileno()
+	# sout = sys.stdout.fileno()
+	# serr = sys.stderr.fileno()
+
+	# pid = os.fork()
+	# if pid != 0:
+	# 	os._exit(0)
+
+	# sys.stdout = ox.fdopen(sout,'w');
+	
 
 import datetime
 import time
