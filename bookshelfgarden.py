@@ -5,35 +5,15 @@ def daemonize():
 
 	if os.fork() > 0:
 	    os._exit(0)
-	# os.setsid()
-	sys.stdin.flush()
-	sys.stdout.flush()
-	sys.stderr.flush()
-	null = os.open('/var/log/bookshelfgarden/log.log', os.O_RDWR)
-	enull = os.open('/var/log/bookshelfgarden/error.log', os.O_RDWR)
-	os.dup2(null, sys.stdin.fileno())
-	os.dup2(null, sys.stdout.fileno())
-	os.dup2(enull, sys.stderr.fileno())
-	os.close(null)
-	os.close(enull)
 
-	
-	# #os.setsid()
+	sys.stdin = open("/dev/null", "r")
+	sys.stdout = open("/dev/null", "w")
+	sys.stderr = open("/dev/null", "w")
 
-	# sys.stdin = open("/dev/null", "r")
-	# sys.stdout = open("/var/log/bookshelfgarden/log.log", "w")
-	# sys.stderr = open("/var/log/bookshelfgarden/error.log", "w") 
-
-	# sin = sys.stdin.fileno()
-	# sout = sys.stdout.fileno()
-	# serr = sys.stderr.fileno()
-
-	# pid = os.fork()
-	# if pid != 0:
-	# 	os._exit(0)
-
-	# sys.stdout = ox.fdopen(sout,'w');
-	
+def printToFile(f,str):
+	l = open(f,'a')
+	l.write(str + '\n')
+	l.close()
 
 import datetime
 import time
@@ -49,8 +29,17 @@ prevtimeIsOk = False
 
 _id = 0;
 
-print 'Starting Bookshelf'
-print 'Connecting...'
+now = datetime.datetime.now()
+
+logFile = '/var/log/bookshelfgarden/log.log'#+now.strftime("%Y-%m-%dT%H.%M")+'.log'
+
+l = open(logFile,'w')
+l.write('')
+l.close()
+
+printToFile(logFile,'Starting Bookshelf')
+printToFile(logFile,now.strftime("%Y-%m-%d %H:%M"))
+printToFile(logFile,'Connecting...')
 while True:
 	try:
 		ser = serial.Serial('/dev/ttyACM'+str(_id), 9600)
@@ -60,7 +49,7 @@ while True:
 			_id = 0
 			time.sleep(2)
 	else:
-		print 'connected to /dev/ttyACM'+str(_id)
+		printToFile(logFile,'connected to /dev/ttyACM'+str(_id))
 		break;
 
 # db = MySQLdb.connect(host="localhost", # your host, usually localhost
@@ -90,7 +79,7 @@ while True:
 		timeIsOk = checkTime()
 		if (timeIsOk != prevtimeIsOk): 
 			now = datetime.datetime.now()
-			print now.strftime("%Y-%m-%d %H:%M")+': timeIsOk changed to '+str(timeIsOk)
+			printToFile(logFile,now.strftime("%Y-%m-%d %H:%M")+': timeIsOk changed to '+str(timeIsOk))
 			prevtimeIsOk = timeIsOk
 
 		count+=1
@@ -99,8 +88,8 @@ while True:
 		time.sleep(sleeptime)
 	except serial.serialutil.SerialException:
 		ser.close()
-		print 'Lost connection to /dev/ttyACM'+str(_id)
-		print 'Retrying...'
+		printToFile(logFile,'Lost connection to /dev/ttyACM'+str(_id))
+		printToFile(logFile,'Retrying...')
 		while True:
 			try:
 				ser = serial.Serial('/dev/ttyACM'+str(_id), 9600)
@@ -110,7 +99,7 @@ while True:
 					_id = 0
 					time.sleep(2)
 			else:
-				print 'connected to /dev/ttyACM'+str(_id)
+				printToFile(logFile,'connected to /dev/ttyACM'+str(_id))
 				break;
 	
 
