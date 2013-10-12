@@ -11,21 +11,24 @@ def daemonize():
 	sys.stderr = open("/dev/null", "w")
 
 def printToFile(f,str):
-	print str
+	now = datetime.datetime.now()
+	print now.strftime("%Y-%m-%d %H:%M")+": "+str
 	l = open(f,'a')
-	l.write(str + '\n')
+	l.write(now.strftime("%Y-%m-%d %H:%M")+": "+str + '\n')
 	l.close()
 
 def checkTime():
 	ans = False
 	now = datetime.datetime.now()
 	# printToFile(logFile,str(now.hour) +', '+ str(hours[0]) +', '+ str(hours[1]))
-	if (now.hour >= hours[0] and now.hour < hours[1]):
-	# if (now.minute % 2):
-		ans = True 
-	else:
-		ans = False
-	printToFile(logFile, str(ans))
+	
+	for (s, e) in hours:
+		# printToFile(logFile,str(s) +', '+ str(e))
+		if (now.hour >= s and now.hour < e):
+		# if (now.minute % 2):
+			ans = True 
+		
+	# printToFile(logFile, str(ans))
 	return ans
 
 import datetime
@@ -35,8 +38,8 @@ import MySQLdb
 
 daemonize()
 
-hours = 7, 21
-sleeptime = 5
+hours = [(7, 11), (11,21)]
+sleeptime = 0.2
 timeIsOk = True
 prevtimeIsOk = True
 
@@ -51,9 +54,9 @@ l.write('')
 l.close()
 
 printToFile(logFile,'Starting Bookshelf')
-printToFile(logFile,now.strftime("%Y-%m-%d %H:%M"))
 checkTime()
 printToFile(logFile,'Connecting...')
+
 while True:
 	try:
 		ser = serial.Serial('/dev/ttyACM'+str(_id), 9600)
@@ -63,7 +66,7 @@ while True:
 			_id = 0
 			time.sleep(2)
 	else:
-		printToFile(logFile,'connected to /dev/ttyACM'+str(_id))
+		printToFile(logFile,'Connected to /dev/ttyACM'+str(_id))
 		break;
 
 # db = MySQLdb.connect(host="localhost", # your host, usually localhost
@@ -78,25 +81,32 @@ while True:
 # printToFile(logFile,'Sending to Arduino: '+str(int(timeIsOk)))
 # ser.write(str(int(timeIsOk)))
 
-printToFile(logFile,'Sleeping for 5 seconds...')
-time.sleep(5)
+printToFile(logFile,'Sleeping for 2 seconds...')
+time.sleep(2)
+printToFile(logFile,'Ready!')
+
+timeIsOk = checkTime()
+prevtimeIsOk = timeIsOk
+printToFile(logFile,'Sending to Arduino: '+str(int(timeIsOk)))
+ser.write(str(int(timeIsOk)))
+time.sleep(sleeptime)
 
 while True:
 	try:
-		while ser.inWaiting():
-			# ser.flushInput()
-			printToFile(logFile,'Message from Arduino:"'+ser.readline()+'"')
+		if(ser):
+			while ser.inWaiting():
+				# ser.flushInput()
+				printToFile(logFile,'Message from Arduino:"'+ser.readline()+'"')
 
 		timeIsOk = checkTime()
 		if (timeIsOk != prevtimeIsOk): 
-			now = datetime.datetime.now()
-			printToFile(logFile,now.strftime("%Y-%m-%d %H:%M")+': timeIsOk changed to '+str(timeIsOk))
+			printToFile(logFile,'timeIsOk changed to '+str(timeIsOk))
 			prevtimeIsOk = timeIsOk
 			printToFile(logFile,'Sending to Arduino: '+str(int(timeIsOk)))
 			ser.write(str(int(timeIsOk)))
 
 		time.sleep(sleeptime)
-	except serial.serialutil.SerialException:
+	except IOError: #serial.serialutil.SerialException, 
 		ser.close()
 		printToFile(logFile,'Lost connection to /dev/ttyACM'+str(_id))
 		printToFile(logFile,'Retrying...')
@@ -109,8 +119,15 @@ while True:
 					_id = 0
 					time.sleep(2)
 			else:
-				printToFile(logFile,'connected to /dev/ttyACM'+str(_id))
+				printToFile(logFile,'Connected to /dev/ttyACM'+str(_id))
+				prevtimeIsOk = prevtimeIsOk = -10
+				printToFile(logFile,'Sleeping for 2 seconds...')
+				time.sleep(2)
+				printToFile(logFile,'Ready!')
 				break;
+	# except IOError:
+	# 	# ser.close()
+	# 	printToFile(logFile,'I got an IOERROR')
 	
 
 
