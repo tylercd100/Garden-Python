@@ -22,7 +22,7 @@ import MySQLdb
 
 daemonize()
 
-hours = 7, 23
+hours = 7, 22
 sleeptime = 5
 timeIsOk = False
 prevtimeIsOk = False
