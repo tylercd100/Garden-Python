@@ -33,7 +33,7 @@ import time
 import serial
 import MySQLdb
 
-# daemonize()
+daemonize()
 
 hours = 7, 21
 sleeptime = 5
