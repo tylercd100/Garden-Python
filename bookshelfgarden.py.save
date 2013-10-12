@@ -3,36 +3,16 @@
 def daemonize():
 	import os, sys
 
-	if os.fork() > 0:
-	    os._exit(0)
-	# os.setsid()
-	sys.stdin.flush()
-	sys.stdout.flush()
-	sys.stderr.flush()
-	null = os.open('/var/log/bookshelfgarden/log.log', os.O_RDWR)
-	enull = os.open('/var/log/bookshelfgarden/error.log', os.O_RDWR)
-	os.dup2(null, sys.stdin.fileno())
-	os.dup2(null, sys.stdout.fileno())
-	os.dup2(enull, sys.stderr.fileno())
-	os.close(null)
-	os.close(enull)
-
+	pid = os.fork()
+	if pid != 0:
+		os._exit(0)
 	
-	# #os.setsid()
+	#os.setsid()
 
-	# sys.stdin = open("/dev/null", "r")
-	# sys.stdout = open("/var/log/bookshelfgarden/log.log", "w")
-	# sys.stderr = open("/var/log/bookshelfgarden/error.log", "w") 
+	sys.stdin = open("/dev/null", "r")
+	sys.stdout = open("/var/log/bookshelfgarden/log.log", "w")
+	sys.stderr = open("/var/log/bookshelfgarden/error.log", "w") # Dont show errors
 
-	# sin = sys.stdin.fileno()
-	# sout = sys.stdout.fileno()
-	# serr = sys.stderr.fileno()
-
-	# pid = os.fork()
-	# if pid != 0:
-	# 	os._exit(0)
-
-	# sys.stdout = ox.fdopen(sout,'w');
 	
 
 import datetime
@@ -42,10 +22,8 @@ import MySQLdb
 
 daemonize()
 
-hours = 7, 23
+hours = 7, 21
 sleeptime = 5
-timeIsOk = False
-prevtimeIsOk = False
 
 _id = 0;
 
@@ -74,11 +52,10 @@ count = 0;
 def checkTime():
 	ans = False
 	now = datetime.datetime.now()
+	# print now.hour, now.minute, now.second
+	print now.strftime("%Y-%m-%d %H:%M")
 	if (now.hour >= hours[0] and now.hour < hours[1]):
 		ans = True 
-	else:
-		ans = False
-
 	return ans
 
 
@@ -86,13 +63,10 @@ while True:
 	try:
 		while ser.inWaiting():
 			ser.flushInput()
+			#print ser.readline()
 
 		timeIsOk = checkTime()
-		if (timeIsOk != prevtimeIsOk): 
-			now = datetime.datetime.now()
-			print now.strftime("%Y-%m-%d %H:%M")+': timeIsOk changed to '+str(timeIsOk)
-			prevtimeIsOk = timeIsOk
-
+		# print int(timeIsOk)
 		count+=1
 		ser.write(str(int(timeIsOk)))
 		
