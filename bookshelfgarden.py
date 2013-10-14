@@ -38,7 +38,7 @@ import MySQLdb
 
 daemonize()
 
-hours = [(7, 11), (11,21)]
+hours = [(9, 11), (11,21)]
 sleeptime = 0.2
 timeIsOk = True
 prevtimeIsOk = True
