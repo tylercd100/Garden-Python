@@ -74,15 +74,30 @@ def checkTime():
 
 daemonize()
 
+logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
+
+l = open(logFile,'w')
+l.write('')
+l.close()
+
 sleeptime = 0.2
 
+printToFile(logFile,'Starting Bookshelf')
 #arduino
-arduino = Arduino('/dev/ttyACM0')
-time.sleep(2)
+try:
+	arduino = Arduino('/dev/ttyACM0')
+	time.sleep(2)
+except:
+	printToFile(logFile,'Error Connecting to arduino')
+else:
+	printToFile(logFile,'Success Connecting to arduino')
 
 #mysql
-db = MySQLdb.connect(host="localhost",user="root",passwd="joshua22",db="garden")
-cur = db.cursor()
+try:
+	db = MySQLdb.connect(host="localhost",user="root",passwd="joshua22",db="garden")
+	cur = db.cursor()
+except:
+	printToFile(logFile,'Error Connecting to the database')
 
 #fetch things
 devices = fetchDevices()
@@ -100,7 +115,7 @@ while True:
 
 	#check for messages from the arduino
 	while arduino.inWaiting():
-		print('Message from Arduino:"'+arduino.readline()+'"')
+		printToFile(logFile,'Message from Arduino:"'+arduino.readline()+'"')
 
 	#fetch things
 	devices = fetchDevices()
