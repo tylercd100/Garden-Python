@@ -94,7 +94,7 @@ while True:
 	try:
 		db = MySQLdb.connect(host="localhost",user="root",passwd="joshua22",db="garden")
 		cur = db.cursor()
-	except _mysql_exceptions.OperationalError:
+	except OperationalError:
 		printToFile(logFile,'Error, trying again..')
 		time.sleep(2)
 	else:
