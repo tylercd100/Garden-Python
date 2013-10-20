@@ -16,7 +16,7 @@ def daemonize():
 
 	sys.stdin = open("/dev/null", "r")
 	sys.stdout = open("/dev/null", "w")
-	sys.stderr = open("/dev/null", "w")
+	sys.stderr = open("/var/log/bookshelfgarden/error.log", "w")
 
 def printToFile(f,str):
 	now = datetime.datetime.now()
