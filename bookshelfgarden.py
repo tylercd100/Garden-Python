@@ -72,7 +72,7 @@ def checkTime():
 
 
 
-#daemonize()
+daemonize()
 
 sleeptime = 0.2
 
