@@ -25,7 +25,7 @@ def printToFile(f,str):
 	l.write(now.strftime("%Y-%m-%d %H:%M")+": "+str + '\n')
 	l.close()
 
-def fetchDevices():
+def fetchDevices(cur):
 	cur.execute("SELECT id, pin, state, max_on FROM devices;")
 	res = []
 	i = 0
@@ -35,7 +35,7 @@ def fetchDevices():
 		i = i + 1
 	return res
 
-def fetchSchedules():
+def fetchSchedules(cur):
 	cur.execute("SELECT id, device_id, minute, hour, day, duration FROM schedules;")
 	res = []
 	i = 0
@@ -93,11 +93,9 @@ else:
 	printToFile(logFile,'Success Connecting to arduino')
 
 #mysql
-try:
 	db = MySQLdb.connect(host="localhost",user="root",passwd="joshua22",db="garden")
 	cur = db.cursor()
-except:
-	printToFile(logFile,'Error Connecting to the database')
+	# printToFile(logFile,'Error Connecting to the database')
 
 #fetch things
 devices = fetchDevices()
