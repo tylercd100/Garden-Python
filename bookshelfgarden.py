@@ -25,7 +25,7 @@ def printToFile(f,str):
 	l.write(now.strftime("%Y-%m-%d %H:%M")+": "+str + '\n')
 	l.close()
 
-def fetchDevices(cur):
+def fetchDevices():
 	cur.execute("SELECT id, pin, state, max_on FROM devices;")
 	res = []
 	i = 0
@@ -35,7 +35,7 @@ def fetchDevices(cur):
 		i = i + 1
 	return res
 
-def fetchSchedules(cur):
+def fetchSchedules():
 	cur.execute("SELECT id, device_id, minute, hour, day, duration FROM schedules;")
 	res = []
 	i = 0
@@ -72,7 +72,7 @@ def checkTime():
 
 
 
-daemonize()
+#daemonize()
 
 logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
 
@@ -83,18 +83,23 @@ l.close()
 sleeptime = 0.2
 
 printToFile(logFile,'Starting Bookshelf')
+
 #arduino
-try:
-	arduino = Arduino('/dev/ttyACM0')
-	time.sleep(2)
-except:
-	printToFile(logFile,'Error Connecting to arduino')
-else:
-	printToFile(logFile,'Success Connecting to arduino')
+arduino = Arduino('/dev/ttyACM0')
+time.sleep(2)
+printToFile(logFile,'Success Connecting to arduino')
 
 #mysql
-	db = MySQLdb.connect(host="localhost",user="root",passwd="joshua22",db="garden")
-	cur = db.cursor()
+while True:
+	try:
+		db = MySQLdb.connect(host="localhost",user="root",passwd="joshua22",db="garden")
+		cur = db.cursor()
+	except _mysql_exceptions.OperationalError:
+		printToFile(logFile,'Error, trying again..')
+		time.sleep(2)
+	else:
+		break
+
 	# printToFile(logFile,'Error Connecting to the database')
 
 #fetch things
