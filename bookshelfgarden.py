@@ -90,13 +90,10 @@ time.sleep(2)
 printToFile(logFile,'Success Connecting to arduino')
 
 #mysql
-while True:
-	db = MySQLdb.connect(host="127.0.0.1",user="root",passwd="joshua22",db="garden")
-	cur = db.cursor()
-	printToFile(logFile,'Success Connecting to MySQL Database')
-	break
-
-	# printToFile(logFile,'Error Connecting to the database')
+time.sleep(2)
+db = MySQLdb.connect(host="127.0.0.1",user="root",passwd="joshua22",db="garden")
+cur = db.cursor()
+printToFile(logFile,'Success Connecting to MySQL Database')
 
 #fetch things
 devices = fetchDevices()
