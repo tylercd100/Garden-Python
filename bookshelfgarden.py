@@ -91,10 +91,15 @@ printToFile(logFile,'Success Connecting to arduino')
 
 #mysql
 while True:
-	db = MySQLdb.connect(host="localhost",user="root",passwd="joshua22",db="garden")
-	cur = db.cursor()
-	printToFile(logFile,'Success Connecting to MySQL Database')
-	break
+	try:
+		db = MySQLdb.connect(host="127.0.0.1",user="root",passwd="joshua22",db="garden")
+		cur = db.cursor()
+	except _mysql_exceptions.OperationalError:
+		printToFile(logFile,'Error, trying again..')
+		time.sleep(2)
+	else:
+		printToFile(logFile,'Success Connecting to MySQL Database')
+		break
 
 	# printToFile(logFile,'Error Connecting to the database')
 
