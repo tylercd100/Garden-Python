@@ -72,7 +72,7 @@ def checkTime():
 
 
 
-#daemonize()
+daemonize()
 
 logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
 
@@ -98,6 +98,7 @@ while True:
 		printToFile(logFile,'Error, trying again..')
 		time.sleep(2)
 	else:
+		printToFile(logFile,'Success Connecting to MySQL Database')
 		break
 
 	# printToFile(logFile,'Error Connecting to the database')
