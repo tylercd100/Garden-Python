@@ -90,8 +90,7 @@ time.sleep(2)
 printToFile(logFile,'Success Connecting to arduino')
 
 #mysql
-time.sleep(2)
-db = MySQLdb.connect(host="127.0.0.1",user="root",passwd="joshua22",db="garden")
+db = MySQLdb.connect(host="127.0.0.1",port=3306,user="root",passwd="joshua22",db="garden")
 cur = db.cursor()
 printToFile(logFile,'Success Connecting to MySQL Database')
 
