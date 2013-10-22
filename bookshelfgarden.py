@@ -80,7 +80,7 @@ l = open(logFile,'w')
 l.write('')
 l.close()
 
-sleeptime = 1
+sleeptime = 5
 
 printToFile(logFile,'Starting Bookshelf')
 
