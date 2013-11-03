@@ -102,6 +102,7 @@ schedules = fetchSchedules()
 for device in devices:
 	device.arduino = arduino
 	device.sendState()
+	time.sleep(0.05)
 
 loopcount = 0
 while True:
