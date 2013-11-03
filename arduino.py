@@ -20,6 +20,6 @@ class Arduino:
 
 	def send(self,pin,value):
 		print 'Sending Ardiuno pin '+str(pin)+' as '+str(value)
-		self.write(str(pin)+','+str(value))
+		self.write(str(pin)+','+str(value)+'|')
 
 		
