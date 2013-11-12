@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-
 import serial
-#'/dev/ttyACM'+str(_id)
+import time
+
 class Arduino:
 	def __init__(self,port):
 		self.connect(port)
+		self.ser.flushInput()
+		self.ser.flushOutput()
 
 	def write(self,data):
 		self.ser.write(data);
@@ -20,6 +22,7 @@ class Arduino:
 
 	def send(self,pin,value):
 		print 'Sending Ardiuno pin '+str(pin)+' as '+str(value)
-		self.write(str(pin)+','+str(value)+'|')
+		self.write(str(pin)+','+str(value)+'|');
+		time.sleep(0.1)
 
 		

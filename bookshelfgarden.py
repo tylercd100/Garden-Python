@@ -7,6 +7,8 @@ import MySQLdb
 from arduino import Arduino
 from device import Device
 from schedule import Schedule
+from condition import Condition
+from sensor import Sensor
 
 def daemonize():
 	import os, sys
@@ -26,26 +28,74 @@ def printToFile(f,str):
 	l.close()
 
 def fetchDevices():
-	cur.execute("SELECT id, pin, state, max_on FROM devices;")
+	cur.execute("SELECT id FROM devices;")
 	res = []
 	i = 0
 	results = cur.fetchall()
 	for row in results:
-		res.append(Device(row[0],row[1],row[2],row[3]));
+		res.append(Device(row[0], cur));
 		i = i + 1
 	return res
 
 def fetchSchedules():
-	cur.execute("SELECT id, device_id, minute, hour, day, duration FROM schedules;")
+	cur.execute("SELECT id FROM schedules;")
 	res = []
 	i = 0
 	results = cur.fetchall()
 	for row in results:
-		res.append(Schedule(row[0],row[1],row[2],row[3],row[4],row[5]));
+		res.append(Schedule(row[0], cur));
 		i = i + 1
 	return res
 
-def checkSchedules():#Check devices to change states
+def fetchConditions():
+	cur.execute("SELECT id FROM conditions;")
+	res = []
+	i = 0
+	results = cur.fetchall()
+	for row in results:
+		res.append(Condition(row[0], cur));
+		i = i + 1
+	return res
+
+def fetchSensors():
+	cur.execute("SELECT id FROM sensors;")
+	res = []
+	i = 0
+	results = cur.fetchall()
+	for row in results:
+		res.append(Sensor(row[0], cur));
+		i = i + 1
+	return res
+
+def checkSchedulesAndConditions():#Check devices to change states
+	for device in devices:
+		s_on = False
+		c_on = False
+		hasCondition = False
+		hasSchedule = False
+		for condition in conditions:
+			if(device.id == condition.device_id):
+				hasCondition = True
+				if(condition.check()):
+					c_on = True
+		for schedule in schedules:
+			if(device.id == schedule.device_id):
+				hasSchedule = True
+				if(schedule.checkTime()):
+					s_on = True
+					break;
+
+		hasCondition = not hasCondition
+		hasSchedule = not hasSchedule
+
+		on = (s_on or hasSchedule) and (c_on or hasCondition);
+
+		if(device.state != on):
+			# print 'Device', device.id, 'is', on
+			device.toggle(cur)
+			
+
+def checkConditions():#Check devices to change states
 	for device in devices:
 		on = False
 		for schedule in schedules:
@@ -55,6 +105,35 @@ def checkSchedules():#Check devices to change states
 					break;
 		if(device.state != on):
 			device.toggle(cur)
+
+def sendStates():
+	#attach arduino to each device
+	#print 'Attaching'
+	for device in devices:
+		device.sendState()
+
+def attach():
+	#attach arduino to each device
+	#print 'Attaching'
+	for device in devices:
+		device.arduino = arduino
+		for condition in conditions:
+			if condition.device_id == device.id:
+				condition.device = device
+				#print 'Attached device to condition'
+		for schedule in schedules:
+			if schedule.device_id == device.id:
+				schedule.device = device
+				#print 'Attached device to schedule'
+
+	for condition in conditions:
+		for sensor in sensors:
+			if(condition.sensor_id == sensor.id):
+				condition.sensor = sensor
+				#print 'Attached sensor1 to condition'
+			if(condition.comp_sensor_id == sensor.id):
+				condition.comp_sensor = sensor
+				#print 'Attached sensor2 to condition'
 
 def checkTime():
 	ans = False
@@ -72,7 +151,7 @@ def checkTime():
 
 
 
-daemonize()
+#daemonize()
 
 logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
 
@@ -94,37 +173,62 @@ db = MySQLdb.connect(host="localhost",port=3306,user="root",passwd="joshua22",db
 cur = db.cursor()
 printToFile(logFile,'Success Connecting to MySQL Database')
 
-#fetch things
-devices = fetchDevices()
-schedules = fetchSchedules()
-
-#attach arduino to each device
-for device in devices:
-	device.arduino = arduino
-	device.sendState()
-	time.sleep(0.05)
-
 loopcount = 0
 while True:
 	loopcount+=1
-	# print '------------------------ Loop '+str(loopcount)+' ------------------------'
-
-	#check for messages from the arduino
-	while arduino.inWaiting():
-		printToFile(logFile,'Message from Arduino:"'+arduino.readline()+'"')
-
+	print"-------------------- Loop",loopcount,"--------------------"
 	#fetch things
 	devices = fetchDevices()
 	schedules = fetchSchedules()
+	conditions = fetchConditions()
+	sensors = fetchSensors()
 
-	#attach arduino to each device
-	for device in devices:
-		device.arduino = arduino
+	#attach things
+	attach()
+
+	#if this is the first loop send defaults to the arduino
+	if loopcount == 1:
+		sendStates()
+		arduino.ser.flush()
+
+	#check arduino messages
+	while arduino.inWaiting() and loopcount > 0:
+		msg = arduino.readline().replace('\r','').replace('\n','').split('|');
+		if(msg[0] == '!0'):
+			print 'Regular MSG'
+		elif(msg[0] == '!1'):#Temperature MSG
+			print msg
+			pin = msg[1]
+			temperature = msg[2]
+			for sensor in sensors:
+				if sensor.pin == int(pin) and sensor.type == "temperature":
+					sensor.value = float(temperature)
+					sensor.save();
+		elif(msg[0] == '!2'):#Humidity MSG
+			print msg
+			pin = msg[1]
+			humidity = msg[2]
+			for sensor in sensors:
+				if sensor.pin == int(pin) and sensor.type == "humidity":
+					sensor.value = float(humidity)
+					sensor.save();
+		elif(msg[0][:1] == '!'):
+			print 'Unknown MSG ID', msg[0], msg[1:]
+		else:
+			print msg
+
+		#printToFile(logFile,'Message from Arduino:"'++'"')
 
 	#check schedule times
-	checkSchedules()
+	checkSchedulesAndConditions()
 	db.commit()
 	time.sleep(sleeptime)
+
+
+# Grow lights can only be on for 12 hours
+# if its within schedule check conditions
+#
+#
 
 
 
