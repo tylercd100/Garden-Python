@@ -199,7 +199,7 @@ while True:
 		sensor_record_count = 0
 		for sensor in sensors:
 			sr = SensorRecord(cur,sensor.id,sensor.type,sensor.value)
-	        sr.saveNew(['sensor_id','type','value','created_at','updated_at'])
+			sr.saveNew(['sensor_id','type','value','created_at','updated_at'])
 
 	#check arduino messages
 	while arduino.inWaiting() and loopcount > 0:
