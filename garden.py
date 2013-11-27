@@ -175,8 +175,10 @@ cur = db.cursor()
 printToFile(logFile,'Success Connecting to MySQL Database')
 
 loopcount = 0
+sensor_record_count = 0
 while True:
 	loopcount+=1
+	sensor_record_count+=1
 	print"-------------------- Loop",loopcount,"--------------------"
 	#fetch things
 	devices = fetchDevices()
@@ -193,7 +195,8 @@ while True:
 		arduino.ser.flush()
 
 	#ever 15 minutes update the sensor records table
-	if loopcount % (15*60) == 0:
+	if sensor_record_count >= (15*60)/5:
+		sensor_record_count = 0
 		for sensor in sensors:
 			sr = SensorRecord(cur,sensor.id,sensor.type,sensor.value)
 	        sr.saveNew(['sensor_id','type','value','created_at','updated_at'])
