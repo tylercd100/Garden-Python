@@ -165,7 +165,7 @@ sleeptime = 5
 printToFile(logFile,'Starting Bookshelf')
 
 #arduino
-#arduino = Arduino('/dev/ttyACM0')
+arduino = Arduino('/dev/ttyACM0')
 time.sleep(2)
 printToFile(logFile,'Success Connecting to arduino')
 
