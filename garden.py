@@ -9,6 +9,7 @@ from device import Device
 from schedule import Schedule
 from condition import Condition
 from sensor import Sensor
+from sensor_record import SensorRecord
 
 def daemonize():
 	import os, sys
@@ -164,7 +165,7 @@ sleeptime = 5
 printToFile(logFile,'Starting Bookshelf')
 
 #arduino
-arduino = Arduino('/dev/ttyACM0')
+#arduino = Arduino('/dev/ttyACM0')
 time.sleep(2)
 printToFile(logFile,'Success Connecting to arduino')
 
@@ -190,6 +191,12 @@ while True:
 	if loopcount == 1:
 		sendStates()
 		arduino.ser.flush()
+
+	#ever 15 minutes update the sensor records table
+	if loopcount % (15*60) == 0:
+		for sensor in sensors:
+			sr = SensorRecord(cur,sensor.id,sensor.type,sensor.value)
+	        sr.saveNew(['sensor_id','type','value','created_at','updated_at'])
 
 	#check arduino messages
 	while arduino.inWaiting() and loopcount > 0:

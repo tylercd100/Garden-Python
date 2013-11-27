@@ -40,6 +40,35 @@ class Model:
 				setattr(self,self.columns[i],val)
 				i = i + 1
 
+	def saveNew(self,cols = []):
+		self.getColumns()
+		if(len(cols) <= 0):
+			cols = self.columns
+
+		values = []
+		heads = ""
+		vals = ""
+		i=0
+		for col in cols:
+			if(i > 0):
+				vals = vals + ', ' + '%s'
+				heads = heads + ', ' + col
+			else:
+				vals = vals + '%s'
+				heads = heads + col
+			i = i + 1
+			values.append(getattr(self,col))
+
+		self.cur.execute("INSERT INTO "+self.table+" ("+heads+") VALUES ("+vals+");",values)
+		results = self.cur.fetchall()
+
+		i = 0;
+		for row in results:
+			i = 0;
+			for val in row:
+				setattr(self,self.columns[i],val)
+				i = i + 1
+
 	def getColumns(self):
 		if not hasattr(self,'columns'):
 			self.columns = [] 
