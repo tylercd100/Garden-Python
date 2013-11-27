@@ -193,10 +193,10 @@ while True:
 		arduino.ser.flush()
 
 	#ever 15 minutes update the sensor records table
-	if loopcount % (15*60) == 0:
+	if (loopcount - 1) % (15*60) == 0:
 		for sensor in sensors:
 			sr = SensorRecord(cur,sensor.id,sensor.type,sensor.value)
-	        sr.saveNew(['sensor_id','type','value','created_at','updated_at'])
+			sr.saveNew(['sensor_id','type','value','created_at','updated_at'])
 
 	#check arduino messages
 	while arduino.inWaiting() and loopcount > 0:
