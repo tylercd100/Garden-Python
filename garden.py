@@ -151,7 +151,7 @@ def checkTime():
 
 
 
-#daemonize()
+daemonize()
 
 logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
 
