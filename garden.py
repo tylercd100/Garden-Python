@@ -175,7 +175,7 @@ cur = db.cursor()
 printToFile(logFile,'Success Connecting to MySQL Database')
 
 loopcount = 0
-sensor_record_count = -1
+sensor_record_count = (60*15/sleeptime)-1
 while True:
 	loopcount+=1
 	sensor_record_count+=1
@@ -195,7 +195,7 @@ while True:
 		arduino.ser.flush()
 
 	#ever 15 minutes update the sensor records table
-	if (sensor_record_count*60*15/sleeptime) >= 0:
+	if sensor_record_count >= 60*15/sleeptime:
 		print 'Saving Temperature and Humidity Values to Database'
 		sensor_record_count = -1
 		for sensor in sensors:
