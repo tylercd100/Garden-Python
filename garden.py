@@ -152,7 +152,7 @@ def checkTime():
 
 
 
-daemonize()
+#daemonize()
 
 logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
 
@@ -195,7 +195,7 @@ while True:
 		arduino.ser.flush()
 
 	#ever 15 minutes update the sensor records table
-	if sensor_record_count >= (15*60)/5:
+	if sensor_record_count > 0:
 		sensor_record_count = 0
 		for sensor in sensors:
 			sr = SensorRecord(cur,sensor.id,sensor.type,sensor.value)
