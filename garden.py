@@ -4,6 +4,7 @@ import datetime
 import time
 import serial
 import MySQLdb
+import sys
 from arduino import Arduino
 from device import Device
 from schedule import Schedule
@@ -150,11 +151,18 @@ def checkTime():
 	# printToFile(logFile, str(ans))
 	return ans
 
-
-
-#daemonize()
-
+def checkArg(arg):
+	for a in sys.argv:
+		printToFile(logFile,a[1:])
+		if a[:1] == "-":
+			if a[1:] == arg:
+				return True
+	return False
+			
 logFile = '/var/log/bookshelfgarden/log.log' #+now.strftime("%Y-%m-%dT%H.%M")+'.log'
+
+if checkArg("v") == False:
+	daemonize()
 
 l = open(logFile,'w')
 l.write('')
@@ -165,21 +173,39 @@ sleeptime = 5
 printToFile(logFile,'Starting Bookshelf')
 
 #arduino
-arduino = Arduino('/dev/ttyACM0')
+i = 0
+while True:
+	try:
+		arduino = Arduino('/dev/ttyACM'+str(i))
+		break;
+	except serial.SerialException:
+		printToFile(logFile,'Couldn\'t connect to Arduino on /dev/ttyACM'+str(i)+'. Retrying...')
+		i+=1
+		if i > 9:
+			i=0
+			time.sleep(5)
+
+printToFile(logFile,'Success Connecting to Arduino on /dev/ttyACM'+str(i))	
 time.sleep(2)
-printToFile(logFile,'Success Connecting to arduino')
 
 #mysql
-db = MySQLdb.connect(host="localhost",port=3306,user="root",passwd="joshua22",db="garden")
-cur = db.cursor()
+while True:
+	try:
+		db = MySQLdb.connect(host="localhost",port=3306,user="root",passwd="joshua22",db="garden")
+		cur = db.cursor()
+		break;
+	except MySQLdb.OperationalError, e:
+		printToFile(logFile,'Couldn\'t connect to mysql. Retrying...')
+		time.sleep(5)
+
 printToFile(logFile,'Success Connecting to MySQL Database')
 
 loopcount = 0
-sensor_record_count = (60*15/sleeptime)-1
+sensor_record_count = (60*1/sleeptime)-1
 while True:
 	loopcount+=1
 	sensor_record_count+=1
-	print"-------------------- Loop",loopcount,"--------------------"
+	printToFile(logFile,"-------------------- Loop "+str(loopcount)+"--------------------")
 	#fetch things
 	devices = fetchDevices()
 	schedules = fetchSchedules()
@@ -195,8 +221,8 @@ while True:
 		arduino.ser.flush()
 
 	#ever 15 minutes update the sensor records table
-	if sensor_record_count >= 60*15/sleeptime:
-		print 'Saving Temperature and Humidity Values to Database'
+	if sensor_record_count >= 60*1/sleeptime:
+		printToFile(logFile,'Saving Temperature and Humidity Values to Database')
 		sensor_record_count = -1
 		for sensor in sensors:
 			sr = SensorRecord(cur,sensor.id,sensor.type,sensor.value)
@@ -206,9 +232,9 @@ while True:
 	while arduino.inWaiting() and loopcount > 0:
 		msg = arduino.readline().replace('\r','').replace('\n','').split('|');
 		if(msg[0] == '!0'):
-			print 'Regular MSG'
+			printToFile(logFile,'Regular MSG')
 		elif(msg[0] == '!1'):#Temperature MSG
-			print msg
+			printToFile(logFile,str(msg))
 			pin = msg[1]
 			temperature = msg[2]
 			for sensor in sensors:
@@ -216,17 +242,25 @@ while True:
 					sensor.value = float(temperature)
 					sensor.save();
 		elif(msg[0] == '!2'):#Humidity MSG
-			print msg
+			printToFile(logFile,str(msg))
 			pin = msg[1]
 			humidity = msg[2]
 			for sensor in sensors:
 				if sensor.pin == int(pin) and sensor.type == "humidity":
 					sensor.value = float(humidity)
 					sensor.save();
+		elif(msg[0] == '!3'):#Light MSG
+			printToFile(logFile,str(msg))
+			pin = msg[1]
+			light = msg[2]
+			for sensor in sensors:
+				if sensor.pin == int(pin) and sensor.type == "light":
+					sensor.value = float(light)
+					sensor.save();
 		elif(msg[0][:1] == '!'):
-			print 'Unknown MSG ID', msg[0], msg[1:]
+			printToFile(logFile,'Unknown MSG ID' + str(msg[0]) + ' ' + str(msg[1:]))
 		else:
-			print msg
+			printToFile(logFile,str(msg))
 
 		#printToFile(logFile,'Message from Arduino:"'++'"')
 
